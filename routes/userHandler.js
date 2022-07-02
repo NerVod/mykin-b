@@ -1,5 +1,6 @@
 const { db } = require("../model/User");
 const User = require("../model/User");
+const secret = process.env.JWTPRIVATEKEY
 
 exports.registerNewUser = async (req, res) => {
   try {
@@ -48,7 +49,7 @@ exports.loginUser = async (req, res) => {
       if (match) {
           let token = await user.generateJwtToken({
               user
-          }, "secret", {
+          }, secret, {
               expiresIn: 604800
           })
           if (token) {
