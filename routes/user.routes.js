@@ -37,6 +37,7 @@ router.post("/deletemessage",  messageHandler.deleteMessage);
 router.get("/logged", auth, userHandler.dataProtegee);
 router.get("/contact", auth, userHandler.dataProtegee);
 router.get("/user", auth, userHandler.userData);
+router.get("/getinscrits", contactHandler.getInscrits);
 
 
 
