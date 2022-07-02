@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
+const url = process.env.DB
 
 module.exports = function (app) {
   mongoose.connect(
-    "mongodb+srv://NerVod:MotDePasseMongo@cluster0.aykvr.mongodb.net/mykin?retryWrites=true&w=majority",
+    url,
     {
       useUnifiedTopology: true,
       useNewUrlParser: true,
