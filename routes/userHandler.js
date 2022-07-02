@@ -135,25 +135,6 @@ exports.updatePhoto = async(req, res) => {
 
 
 
-
-
-
-
-// exports.photoprofile = async (req, res)=> {
-//   console.log('req userhandlerbackend',req.params.id)
-//   let email= req.params.id
-
-// /////////////////////////////////////////////////////
-//   // faire recherche de la photo dans mongo ici
-// /////////////////////////////////////////////////////
-
-
-
-//   res.json({
-//     msg : `route photoprofile ${email}`
-//   })
-// }
-
 exports.hasPhoto = async (req, res) => {
   const user = req.body.user;
   const photo = [];
@@ -222,9 +203,9 @@ try {
     invitAttente = invitAttente.filter(element => element !== activeUser);
     invitEnvoyees= invitEnvoyees.filter(element => element !== activeUser);
     amis = amis.filter(element => element !== activeUser)
-    console.log(`${activeUser} deleted from ${updatedAccount} ${invitAttente}`, invitAttente )
-    console.log(`${activeUser} deleted from ${updatedAccount} ${invitEnvoyees}`, invitEnvoyees )
-    console.log(`${activeUser} deleted from ${updatedAccount} ${amis}`, amis )
+    // console.log(`${activeUser} deleted from ${updatedAccount} ${invitAttente}`, invitAttente )
+    // console.log(`${activeUser} deleted from ${updatedAccount} ${invitEnvoyees}`, invitEnvoyees )
+    // console.log(`${activeUser} deleted from ${updatedAccount} ${amis}`, amis )
     User.updateOne(
       {email: updatedAccount},
       {invitEnAttente : invitAttente}, function (err, doc) {
@@ -269,5 +250,171 @@ try {
 } catch {
   console.log("catch delete account ")
 }
+
+}
+
+exports.updatePrenom = async (req, res) => {
+  const prenom = req.body.prenom
+  const activeUser = req.body.user
+  console.log("nouveau prenom :", prenom)
+  console.log("activeuser :", activeUser)
+
+ try {
+  User.findOne(
+    {email: activeUser },
+    (err, user) => {
+      if(!err) {
+        const prenomToChange = user.prenom;
+        console.log("prenom to change :", prenomToChange)
+        if(prenomToChange !== prenom){
+          User.updateOne(
+            {email: activeUser},
+            {
+              prenom: prenom
+            },
+            function (err, docs) {
+              if(err) {
+                console.log("erreur if maj prenom ", err)
+              } else {
+                console.log("prenom mis à jour", docs)
+                res.json({msg: "prenom updated"})
+              }
+            }
+          )
+        }  else {
+          res.json({msg: "prenom identique !"})
+        }
+      } else {
+        console.log('erreur else update prenom')
+      }
+    }
+  )
+ } catch {
+  console.log('catch update prenom')
+ }
+}
+
+exports.updateNom = async (req, res) => {
+  const nom = req.body.nom;
+  const activeUser = req.body.user;
+  // console.log("nom nouveau :", nom)
+  // console.log("activeUser :", activeUser)
+
+  try {
+    User.findOne(
+      {email: activeUser},
+      (err, user) => {
+        if(!err) {
+          const nomToChange = user.name;
+          // console.log('nom à changer :', nomToChange)
+          if(nomToChange !== nom) {
+            User.updateOne(
+              {email: activeUser},
+              {
+                name: nom
+              },
+              function (err, docs) {
+                if(err) {
+                  console.log("erreur if update nom")
+                } else {
+                  console.log("nom mis à jour ", docs);
+                  res.json({msg : 'nom updated'})
+                }
+              }
+            )
+          } else {
+            res.json({msg: "nom identique !"})
+          }
+        } else {
+          console.log('err else update nom')
+        }
+      }
+    )
+
+  } catch {
+    console.log('catch update nom')
+  }
+}
+
+exports.updateMail = async (req, res) => {
+  const nouvEmail = req.body.email;
+  const activeUser = req.body.user;
+  // console.log("nom email :", nouvEmail)
+  // console.log("activeUser :", activeUser);
+  
+  try{
+    if(nouvEmail !== activeUser) {
+    const allusers = await User.find()
+
+    for(let oneUser of allusers){
+      const attente = oneUser.invitEnAttente
+      const newAttente=[]
+      const envoyees = oneUser.invitEnvoyee
+      const newenvoyees = []
+      const friends = oneUser.amis
+      const newfriend = []
+      for( let invat of attente ){
+        if(invat === activeUser){
+          newAttente.push(nouvEmail)
+        } else {
+          newAttente.push(invat)
+        }
+      } 
+      for( let envoy of envoyees){
+        if(envoy === activeUser){
+          newenvoyees.push(nouvEmail)
+        } else {
+          newenvoyees.push(envoy)
+        }
+      }
+      for( let onefriend of friends){
+        if(onefriend === activeUser) {
+          newfriend.push(nouvEmail)
+        } else {
+          newfriend.push(onefriend)
+        }
+      }
+      // console.log(`attente avant change de ${oneUser.email}`, attente)
+      // console.log(`attente apres change ${oneUser.email}`, newAttente)
+      // console.log(`envoyees avant change ${oneUser.email}`, envoyees)
+      // console.log(`envoyees apres change ${oneUser.email}`, newenvoyees)
+      // console.log(`amis avant change ${oneUser.email}`, friends)
+      // console.log(`amis apres change ${oneUser.email}`, newfriend)
+
+      User.updateOne(
+        {email: oneUser.email},
+        {
+          invitEnAttente: newAttente,
+          invitEnvoyee: newenvoyees,
+          amis: newfriend
+        },
+        function (err, docs) {
+          if(err){
+            console.log("erreur dans if update oneuser of allUser", err)
+          } else {
+            console.log("oneUser of allusers mis a jour ")
+          }
+        }
+      );
+    }
+    User.updateOne(
+      {email: activeUser},
+      {email: nouvEmail},
+      function (err, docs) {
+        if(err) {
+          console.log("erreur dans if updateone email du user", err)
+        } else {
+          console.log('email du user mis à jour', docs)
+          res.json({msg: "email du user mis à jour"})
+        }
+      }
+    )
+  } else {
+    console.log("email identique !")
+  }
+
+  }catch {
+    console.log("catch update email")
+  }
 
 }
